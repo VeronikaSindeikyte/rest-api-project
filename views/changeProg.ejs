@@ -1,0 +1,215 @@
+<%- include('partials/header') -%>
+<%- include('partials/navbar') %>
+
+<h1 class="title">Programuotojai API</h1>
+<div id="homepage">
+    <h2>Keisti programuotojo informaciją:</h2>
+    <div id="devs"></div>
+</div>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="https://unpkg.com/react@15/dist/react.js"></script>
+<script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+<script type="text/babel">
+    let Devs = React.createClass({
+        getInitialState: function () {
+            return { 
+                devs: [], 
+                currentDev: {
+                    _id: '',
+                    vardas: '', 
+                    tech: [], 
+                    lng: '', 
+                    lat: '' 
+                }
+            };
+        },
+
+        componentDidMount: function () {
+            this.fetchDevs();
+        },
+
+        fetchDevs: function () {
+            fetch('/api/programuotojai')
+                .then(response => response.json())
+                .then(devs => this.setState({ devs }))
+                .catch(err => console.log('Error fetching developers:', err));
+        },
+
+        handleSelect: function (devId) {
+            const dev = this.state.devs.find(dev => dev._id === devId);
+            if (dev) {
+                this.setState({ currentDev: dev });
+            } else {
+                console.log('Developer not found');
+                this.setState({ currentDev: { _id: '', vardas: '', tech: [], lng: '', lat: '' } });
+            }
+        },
+
+        handleChange: function (e) {
+            const { name, value, type, checked } = e.target;
+            if (type === 'checkbox') {
+                let tech = [...this.state.currentDev.tech];
+                if (checked) {
+                    tech.push(name);
+                } else {
+                    tech = tech.filter(t => t !== name);
+                }
+                this.setState({ currentDev: { ...this.state.currentDev, tech } });
+            } else {
+                this.setState({ currentDev: { ...this.state.currentDev, [name]: value } });
+            }
+        },
+
+        handleEdit: function (dev) {
+            this.setState({ editDev: dev });
+        },
+
+        handleSubmit: function (e) {
+            e.preventDefault();
+
+            const { currentDev } = this.state;
+            console.log(currentDev)
+            console.log(currentDev._id)
+            const url = `/api/programuotojai/${currentDev._id}`;
+
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(currentDev)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedDev => {
+                this.setState(prevState => ({
+                    devs: prevState.devs.map(dev => dev._id === updatedDev._id ? updatedDev : dev),
+                    currentDev: { _id: '', vardas: '', tech: [], lng: '', lat: '' }
+                }));
+                alert('Developer updated successfully!');
+            })
+            .catch(err => console.log('Error during fetch:', err));
+            alert('Developer updated successfully!');
+            window.location.reload();
+        },
+
+        handleDelete: function (id) {
+            fetch(`/api/programuotojai/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); 
+                })
+                .then(() => {
+                    this.setState(prevState => ({
+                        devs: prevState.devs.filter(dev => dev._id !== id)
+                    }));
+                    alert('Developer deleted successfully!');
+                })
+                .catch(err => console.log('Error during fetch:', err));
+                alert('Developer deleted successfully!');
+                window.location.reload();
+        },
+
+        render: function () {
+            const { currentDev } = this.state;
+            const devs = this.state.devs.map(dev => (
+                <li key={dev._id} onClick={() => this.handleSelect(dev._id)}>
+                    <span className="name">{dev.vardas}</span>
+                    <span className="rank">{dev.tech.join(', ')}</span>
+                    <span className="long">{parseInt(dev.location.coordinates[0])} longitude</span>
+                    <span className="lat">{parseInt(dev.location.coordinates[1])} latitude</span>
+                    <div className="icons">
+                        <svg
+                            className="trashcan"
+                            onClick={(e) => { e.stopPropagation(); this.handleDelete(dev._id); }} 
+                            stroke="currentColor"
+                            fill="currentColor"
+                            strokeWidth="0"
+                            viewBox="0 0 12 16"
+                            height="1em"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path fillRule="evenodd" d="M11 2H9c0-.55-.45-1-1-1H5c-.55 0-1 .45-1 1H2c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1v9c0 .55.45 1 1 1h7c.55 0 1-.45 1-1V5c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1zm-1 12H3V5h1v8h1V5h1v8h1V5h1v8h1V5h1v9zm1-10H2V3h9v1z"></path>
+                        </svg>
+                        <a href="javascript:void(0)" onClick={(e) => { e.stopPropagation(); this.handleSelect(dev._id); }}>
+                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 640 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h274.9c-2.4-6.8-3.4-14-2.6-21.3l6.8-60.9 1.2-11.1 7.9-7.9 77.3-77.3c-24.5-27.7-60-45.5-99.9-45.5zm45.3 145.3l-6.8 61c-1.1 10.2 7.5 18.8 17.6 17.6l60.9-6.8 137.9-137.9-71.7-71.7-137.9 137.8zM633 268.9L595.1 231c-9.3-9.3-24.5-9.3-33.8 0l-37.8 37.8-4.1 4.1 71.8 71.7 41.8-41.8c9.3-9.4 9.3-24.5 0-33.9z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </li>
+            ));
+
+            return (
+                <div id="dev-container">
+                    <form id="post" onSubmit={this.handleSubmit}>
+                        <div className="name-input">
+                            <label htmlFor="vardas">Įveskite vardą:</label>
+                            <input 
+                                type="text" 
+                                placeholder="įveskite naują programuotojo vardą" 
+                                name="vardas"
+                                value={currentDev.vardas}
+                                onChange={this.handleChange}
+                            />
+                        </div>
+                        <label htmlFor="checkbox">pažymėkite techninius sugebėjimus:</label>
+                        <div className="checkbox">
+                            <label htmlFor="Java">Java</label>
+                            <input type="checkbox" name="Java" className="Java" checked={currentDev.tech.includes('Java')} onChange={this.handleChange} />
+                        </div>
+                        <div className="checkbox">
+                            <label htmlFor="Javascript">JavaScript</label>
+                            <input type="checkbox" name="JavaScript" className="JavaScript" checked={currentDev.tech.includes('JavaScript')} onChange={this.handleChange} />
+                        </div>
+                        <div className="checkbox">
+                            <label htmlFor="SQL">SQL</label>
+                            <input type="checkbox" name="SQL" className="SQL" checked={currentDev.tech.includes('SQL')} onChange={this.handleChange} />
+                        </div>
+                        <div className="checkbox">
+                            <label htmlFor="Agile">Agile</label>
+                            <input type="checkbox" name="Agile" className="Agile" checked={currentDev.tech.includes('Agile')} onChange={this.handleChange} />
+                        </div>
+                        <div className="checkbox">
+                            <label htmlFor="Angular">Angular</label>
+                            <input type="checkbox" name="Angular" className="Angular" checked={currentDev.tech.includes('Angular')} onChange={this.handleChange} />
+                        </div>
+                        <label>Ilguma:</label>
+                        <input 
+                            type="number" 
+                            name="lng"
+                            placeholder="Ilguma" 
+                            required 
+                            value={currentDev.lng} 
+                            onChange={this.handleChange}
+                        />
+                        <label>Platuma:</label>
+                        <input 
+                            type="number" 
+                            name="lat" 
+                            placeholder="Platuma" 
+                            required 
+                            value={currentDev.lat} 
+                            onChange={this.handleChange}
+                        />
+                        <input type="submit" value={"Atnaujinti programuotoją"} />
+                    </form>
+                    <ul>{devs}</ul>
+                </div>
+            );
+        }
+    });
+
+    ReactDOM.render(<Devs />, document.getElementById('devs'));
+</script>
+
+<%- include('partials/footer'); -%>

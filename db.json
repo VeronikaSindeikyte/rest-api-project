@@ -1,0 +1,59 @@
+{
+    "devs": [
+        {
+            "vardas": "Darius",
+            "tech": [".NET", "Python", "SQL"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [54.39635, 24.04142]}
+        },
+        {
+            "vardas": "Dominyka",
+            "tech": ["React", "Vue", "Angular"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [54.68916, 25.2798]}
+        },
+        {
+            "vardas": "Ingrida",
+            "tech": ["Java", "Python"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [54.63783, 24.93433]}
+        },
+        {
+            "vardas": "Povilas",
+            "tech": ["Power BI", "Python", "Tableau"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [56.06251, 24.39965]}
+        },
+        {
+            "vardas": "Danielius",
+            "tech": ["Ruby", "C#", "C++"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [55.73186, 24.35983]}
+        },
+        {
+            "vardas": "Saulius",
+            "tech": ["PHP", "JS", "SQL"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [55.7068, 21.13912]}
+        },
+        {
+            "vardas": "Algirdas",
+            "tech": ["HTML", "CSS", "JS"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [54.90272, 23.90961]}
+        },
+        {
+            "vardas": "Rasa",
+            "tech": ["WordPress", "HTML", "CSS"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [54.55991, 23.35412]}
+        },
+        {
+            "vardas": "Paulina",
+            "tech": ["JS", "React", "Mongo DB"],
+            "laisvas": true,
+            "location": {"type": "Point", "coordinates": [55.3086, 20.99651]}
+        }
+    ]    
+}
+
